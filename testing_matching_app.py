@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 from collections import Counter
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+server = app.server
 
 # Función para calcular la similitud basada en bigramas
 def bigram_similarity(str1, str2):
