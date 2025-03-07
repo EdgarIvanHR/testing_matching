@@ -19,24 +19,32 @@ def bigram_similarity(str1, str2):
 # Función de comparación detallada
 def comparar_personas(data1, data2, umbrales):
     resultados = {}
-    res_sim = {}
+    res_sim,res = {},{}
     
     nombre_completo1 = f"{data1['nombre']} {data1['apellido1_']} {data1['apellido2_']}"
     nombre_completo2 = f"{data2['nombre']} {data2['apellido1_']} {data2['apellido2_']}"
     resultados['nombre_completo'] = bigram_similarity(nombre_completo1, nombre_completo2) >= umbrales['nombre_completo']
     res_sim['nombre_completo'] = ' ---> ' + str(bigram_similarity(nombre_completo1, nombre_completo2))
+    res['nombre_completo'] = bigram_similarity(nombre_completo1, nombre_completo2)
     
     for key in data1:
         if key in umbrales and data1[key] and data2[key]:
             resultados[key] = bigram_similarity(data1[key], data2[key]) >= umbrales[key]
             res_sim[key] = ' ---> ' + str(bigram_similarity(data1[key], data2[key])) 
+            res[key] = bigram_similarity(data1[key], data2[key])
         else:
             resultados[key] = data1[key] == data2[key] if data1[key] and data2[key] else False
             res_sim[key]  = ' '
     
     coincidencias = sum(resultados.values())
     total_campos = len(resultados)
-    coincidencia_general = "Sí" if coincidencias == total_campos else "No"
+    # coincidencia_general = "Sí" if coincidencias == total_campos else "No"
+    if res['nombre_completo'] > .85 and sum([resultados[key] for key in ['nacimiento', 'escolaridad', 'genero', 'migrante', 'grupo_etnico'] ]) >= 4:
+        coincidencia_general = 'Sí'  
+    elif  res['nombre_completo'] > .7 and sum([res[key] for key in ['nombre', 'apellido1_', 'apellido2_'] ]) >= 2.1 and sum([resultados[key] for key in ['nacimiento', 'escolaridad', 'genero', 'migrante', 'grupo_etnico'] ]) == 5:
+        coincidencia_general = 'Sí' 
+    else:
+        coincidencia_general = 'No' 
     
     detalle = html.Ul([html.Li(f"{campo}: {'Coincide' if resultado else 'No coincide'}  {res_sim[campo]}") for campo, resultado in resultados.items()])
     
